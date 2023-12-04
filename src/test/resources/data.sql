@@ -1,0 +1,1 @@
+insert into user_table(email,first_name,last_name,password) VALUES  ('dta89uct@gmail.com', 'andh', 'dinh', '123456')
