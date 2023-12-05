@@ -3,7 +3,8 @@ package andy.testing.controller;
 import andy.testing.controller.user.UserApiController;
 import andy.testing.entity.UserEntity;
 import andy.testing.exception.UserNotFoundException;
-import andy.testing.service.mq.UserMessagingService;
+import andy.testing.service.mq.artemis.receive.UserMessagingService;
+import andy.testing.service.mq.rabit.RabbitUserMessagingService;
 import andy.testing.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -41,9 +42,13 @@ public class UserApiControllerTests {
     @MockBean
     private UserMessagingService userMessagingService;
 
+    @MockBean
+    private RabbitUserMessagingService rabbitUserMessagingService;
+
+
 
     @Test
-    public void shouldAddReturnFor400BadRequest() throws Exception {
+    public void add_shouldAddReturnFor400BadRequest() throws Exception {
 
         UserEntity userEntity = UserEntity.builder().email("").lastName("").firstName("").password("").build();
         String requestBody = objectMapper.writeValueAsString(userEntity);
@@ -55,7 +60,7 @@ public class UserApiControllerTests {
     }
 
     @Test
-    public void shouldAddAndReturn201CreatedForRequest() throws Exception {
+    public void add_shouldAddAndReturn201CreatedForRequest() throws Exception {
 
         UserEntity createdUser = UserEntity.builder().email("dta89@gmai.com")
                 .lastName("andy").firstName("Love").password("andy@123").build();
@@ -63,6 +68,7 @@ public class UserApiControllerTests {
         createdUser.setId(1L);
         Mockito.doNothing().when(userMessagingService).convertAndSend(any());
         Mockito.when(userService.add(any(UserEntity.class))).thenReturn(createdUser);
+        Mockito.doNothing().when(rabbitUserMessagingService).sendUserToQueue(any());
         mockMvc.perform(
                         post(API_END_POINT_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -75,7 +81,7 @@ public class UserApiControllerTests {
 
 
     @Test
-    public void should404NotFoundWhenNotGivenId() throws Exception {
+    public void get_should404NotFoundWhenNotGivenId() throws Exception {
 
         long userId = 123L;
         String requestUrl = API_END_POINT_PATH + "/" + userId;
@@ -87,7 +93,7 @@ public class UserApiControllerTests {
 
 
     @Test
-    public void shouldReturnUserDetail() throws Exception {
+    public void get_shouldReturnUserDetail() throws Exception {
 
         long userId = 1;
         UserEntity userEntity = UserEntity.builder().id(1L)
@@ -134,7 +140,7 @@ public class UserApiControllerTests {
 
     }
 
-    @Test void whenUpdateNonExistUser_Return404NotFound() throws Exception {
+    @Test void update_whenUpdateNonExistUser_Return404NotFound() throws Exception {
 
         UserEntity updateUserData = UserEntity.builder().email("dta89uct@gmail.com")
                 .firstName("xxx1").lastName("xx").password("").build();
@@ -148,7 +154,7 @@ public class UserApiControllerTests {
 
     }
 
-    @Test void whenUpdateExistUser_ReturnNewDataUser() throws Exception {
+    @Test void update_WhenUpdateExistUser_ReturnNewDataUser() throws Exception {
 
         UserEntity updateUserData = UserEntity.builder().email("dta89uct@gmail1.com")
                 .firstName("xxx1").lastName("xx").password("").build();
@@ -160,6 +166,8 @@ public class UserApiControllerTests {
 
         Mockito.when(userService.get(id)).thenReturn(updateUserData);
         Mockito.when(userService.update(any(UserEntity.class))).thenReturn(mockUpdatedUser);
+
+
         mockMvc.perform(put(requestUrl).contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("dta89uct@gmail1.com"));
