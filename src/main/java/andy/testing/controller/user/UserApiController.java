@@ -4,8 +4,7 @@ import andy.testing.controller.BaseApiController;
 import andy.testing.dto.user.UserDto;
 import andy.testing.entity.UserEntity;
 import andy.testing.exception.UserNotFoundException;
-import andy.testing.service.mq.artemis.receive.UserMessagingService;
-import andy.testing.service.mq.rabit.RabbitUserMessagingService;
+import andy.testing.service.mq.IUserMessageSendingService;
 import andy.testing.service.user.UserService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -15,21 +14,18 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/users")
 public class UserApiController extends BaseApiController {
 
     private final UserService userService;
 
+    private final  IUserMessageSendingService sendingService;
 
-    private  final RabbitUserMessagingService rabbitUserMessagingService;
-
-
-    public UserApiController(UserService userService, ModelMapper modelMapper, RabbitUserMessagingService rabbitUserMessagingService) {
+    public UserApiController(UserService userService, ModelMapper modelMapper, IUserMessageSendingService sendingService) {
         super(modelMapper);
         this.userService = userService;
-        this.rabbitUserMessagingService = rabbitUserMessagingService;
+        this.sendingService = sendingService;
     }
 
     @GetMapping("/{id}")
@@ -57,7 +53,7 @@ public class UserApiController extends BaseApiController {
         UserEntity createdUser = userService.add(user);
         URI uri = URI.create("/api/users/" + createdUser.getId());
         UserDto userDto = entity2Dto(createdUser, UserDto.class);
-        rabbitUserMessagingService.sendUserToQueue(createdUser);
+        sendingService.sendUser(createdUser);
         return ResponseEntity.created(uri).body(userDto);
     }
 

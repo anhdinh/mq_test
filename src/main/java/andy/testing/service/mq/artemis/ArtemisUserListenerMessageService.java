@@ -1,6 +1,7 @@
-package andy.testing.service.mq.artemis.receive;
+package andy.testing.service.mq.artemis;
 
 import andy.testing.entity.UserEntity;
+import andy.testing.service.mq.QueueList;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("artemis")
-public class UserListenerMessageService {
+public class ArtemisUserListenerMessageService {
 
     @JmsListener(destination = QueueList.USER_QUEUE)
     public void receiveUser(UserEntity userEntity){

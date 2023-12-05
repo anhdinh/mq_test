@@ -3,8 +3,8 @@ package andy.testing.controller;
 import andy.testing.controller.user.UserApiController;
 import andy.testing.entity.UserEntity;
 import andy.testing.exception.UserNotFoundException;
-import andy.testing.service.mq.artemis.receive.UserMessagingService;
-import andy.testing.service.mq.rabit.RabbitUserMessagingService;
+import andy.testing.service.mq.IUserMessageSendingService;
+import andy.testing.service.mq.rabit.RabbitIUserMessageSendingService;
 import andy.testing.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -40,10 +40,10 @@ public class UserApiControllerTests {
     private UserService userService;
 
     @MockBean
-    private UserMessagingService userMessagingService;
+    private IUserMessageSendingService IUserMessageSendingService;
 
     @MockBean
-    private RabbitUserMessagingService rabbitUserMessagingService;
+    private RabbitIUserMessageSendingService rabbitUserMessagingService;
 
 
 
@@ -66,9 +66,8 @@ public class UserApiControllerTests {
                 .lastName("andy").firstName("Love").password("andy@123").build();
         String requestBody = objectMapper.writeValueAsString(createdUser);
         createdUser.setId(1L);
-        Mockito.doNothing().when(userMessagingService).convertAndSend(any());
+        Mockito.doNothing().when(IUserMessageSendingService).sendUser(any());
         Mockito.when(userService.add(any(UserEntity.class))).thenReturn(createdUser);
-        Mockito.doNothing().when(rabbitUserMessagingService).sendUserToQueue(any());
         mockMvc.perform(
                         post(API_END_POINT_PATH)
                                 .contentType(MediaType.APPLICATION_JSON)

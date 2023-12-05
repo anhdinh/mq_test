@@ -1,7 +1,5 @@
 package andy.testing.controller;
 
-import andy.testing.dto.user.UserDto;
-import andy.testing.entity.UserEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
