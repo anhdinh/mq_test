@@ -2,6 +2,7 @@ package andy.testing.controller;
 
 import andy.testing.service.mq.IUserMessageReceivingService;
 import jakarta.jms.JMSException;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/get/messages")
+@Profile("artemis")
 public class SystemController {
 
     public final IUserMessageReceivingService receiveMessagingService;

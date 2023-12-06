@@ -20,12 +20,11 @@ public class UserApiController extends BaseApiController {
 
     private final UserService userService;
 
-    private final  IUserMessageSendingService sendingService;
+    //private final  IUserMessageSendingService sendingService;
 
-    public UserApiController(UserService userService, ModelMapper modelMapper, IUserMessageSendingService sendingService) {
+    public UserApiController(UserService userService, ModelMapper modelMapper) {
         super(modelMapper);
         this.userService = userService;
-        this.sendingService = sendingService;
     }
 
     @GetMapping("/{id}")
@@ -53,7 +52,7 @@ public class UserApiController extends BaseApiController {
         UserEntity createdUser = userService.add(user);
         URI uri = URI.create("/api/users/" + createdUser.getId());
         UserDto userDto = entity2Dto(createdUser, UserDto.class);
-        sendingService.sendUser(createdUser);
+        //sendingService.sendUser(createdUser);
         return ResponseEntity.created(uri).body(userDto);
     }
 

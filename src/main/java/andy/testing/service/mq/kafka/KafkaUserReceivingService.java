@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
 public class KafkaUserReceivingService implements IUserMessageReceivingService {
     @Override
     public UserEntity receiveUser() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

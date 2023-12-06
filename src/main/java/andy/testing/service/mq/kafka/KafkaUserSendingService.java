@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 @Profile("kafka")
 public class KafkaUserSendingService implements IUserMessageSendingService {
 
-    private final KafkaTemplate<String, UserEntity> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public KafkaUserSendingService(KafkaTemplate<String, UserEntity> kafkaTemplate) {
+    public KafkaUserSendingService(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -24,8 +24,7 @@ public class KafkaUserSendingService implements IUserMessageSendingService {
         kafkaTemplate.send(QueueList.KAFKA_USER_TOPIC, userEntity);
     }
 
-    @KafkaListener(topics = QueueList.KAFKA_USER_TOPIC, groupId = "love",
-            containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = QueueList.KAFKA_USER_TOPIC, groupId = "love")
     public void handle( @Payload UserEntity user) {
         System.out.println("user email"+user.getEmail());
     }
